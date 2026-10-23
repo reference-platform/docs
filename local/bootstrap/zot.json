@@ -1,0 +1,24 @@
+{
+  "distSpecVersion": "1.1.0",
+  "storage": { "rootDirectory": "/var/lib/zot", "gc": true },
+  "http": { "address": "0.0.0.0", "port": "5000" },
+  "log": { "level": "info" },
+  "extensions": {
+    "sync": {
+      "registries": [
+        {
+          "urls": ["https://registry-1.docker.io"],
+          "onDemand": true,
+          "tlsVerify": true,
+          "content": [{ "prefix": "**", "destination": "/docker.io" }]
+        },
+        {
+          "urls": ["https://ghcr.io"],
+          "onDemand": true,
+          "tlsVerify": true,
+          "content": [{ "prefix": "**", "destination": "/ghcr.io" }]
+        }
+      ]
+    }
+  }
+}
