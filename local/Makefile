@@ -22,6 +22,7 @@ test:
 
 down:
 	@kind delete cluster --name $(CLUSTER_NAME)
+	@docker stop zot-cache >/dev/null 2>&1 || true
 
 clean: down
 	@docker rm -f zot-cache >/dev/null 2>&1 || true
