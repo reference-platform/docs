@@ -17,7 +17,7 @@ This repo is the entry point. It holds the docs and the local startup scripts.
 |---|---|
 | [docs](https://github.com/reference-platform/docs) | This repo. The README and the `local/` scripts |
 | [gitops](https://github.com/reference-platform/gitops) | Kubernetes manifests, one folder per environment. ArgoCD reads it |
-| [shop](https://github.com/reference-platform/shop) | A small demo app with 3 services. Its CI builds, signs and opens a PR in gitops |
+| [sample-app](https://github.com/reference-platform/sample-app) | A small demo app with 3 services. Its CI builds, signs and opens a PR in gitops |
 | [infra](https://github.com/reference-platform/infra) | Terraform modules and tests |
 
 ## Architecture
