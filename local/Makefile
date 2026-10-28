@@ -1,4 +1,5 @@
 include versions.env
+export
 
 .PHONY: help preflight up demo load test down clean
 
@@ -10,6 +11,7 @@ preflight:
 
 up:
 	@./bootstrap/cluster.sh
+	@./bootstrap/argocd.sh
 
 demo:
 	@echo "not implemented yet"

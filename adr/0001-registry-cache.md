@@ -31,8 +31,8 @@ It runs outside the cluster because:
   with it, so there would be no warm start.
 - It needs no Kubernetes networking, storage or GitOps sync.
 
-Only docker.io and ghcr.io are mirrored, because those are the registries in
-use. Add a registry to `zot.json` and `cluster.sh` when an image needs it.
+The registries in `registries.json` are mirrored. Add a registry there when an
+image needs it.
 
 ## Consequences
 

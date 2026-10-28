@@ -5,20 +5,7 @@
   "log": { "level": "info" },
   "extensions": {
     "sync": {
-      "registries": [
-        {
-          "urls": ["https://registry-1.docker.io"],
-          "onDemand": true,
-          "tlsVerify": true,
-          "content": [{ "prefix": "**", "destination": "/docker.io" }]
-        },
-        {
-          "urls": ["https://ghcr.io"],
-          "onDemand": true,
-          "tlsVerify": true,
-          "content": [{ "prefix": "**", "destination": "/ghcr.io" }]
-        }
-      ]
+      "registries": []
     }
   }
 }

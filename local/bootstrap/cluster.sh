@@ -1,25 +1,27 @@
 #!/usr/bin/env bash
-# Creates the pull-through cache and the kind cluster. Safe to run twice.
+# Creates the pull-through cache and the kind cluster. Safe to run multiple times.
 
 set -euo pipefail
 
-here=$(cd "$(dirname "$0")" && pwd)
-. "$here/../versions.env"
-
 cache=zot-cache
-volume=zot-cache-data
-mirrors="docker.io=https://registry-1.docker.io ghcr.io=https://ghcr.io"
+registries=bootstrap/registries.json
+generated=$PWD/bootstrap/.generated
 
 start_cache() {
-  if [ -z "$(docker ps -aq -f "name=^${cache}$")" ]; then
-    docker run -d --name "$cache" --restart unless-stopped \
-      -p 127.0.0.1:5001:5000 \
-      -v "$volume":/var/lib/zot \
-      -v "$here/zot.json":/etc/zot/config.json:ro \
-      "$ZOT_IMAGE" >/dev/null
-  else
-    docker start "$cache" >/dev/null
-  fi
+  mkdir -p "$generated"
+  jq --slurpfile list "$registries" '
+    .extensions.sync.registries = [$list[0][] | {
+      urls: [.upstream],
+      onDemand: true,
+      tlsVerify: true,
+      content: [{ prefix: "**", destination: ("/" + .host) }]
+    }]' bootstrap/zot.json >"$generated/config.json"
+  docker rm -f "$cache" >/dev/null 2>&1 || true
+  docker run -d --name "$cache" --restart unless-stopped \
+    -p 127.0.0.1:5001:5000 \
+    -v zot-cache-data:/var/lib/zot \
+    -v "$generated":/etc/zot:ro \
+    "$ZOT_IMAGE" >/dev/null
 }
 
 create_cluster() {
@@ -28,7 +30,7 @@ create_cluster() {
     return
   fi
   kind create cluster --name "$CLUSTER_NAME" --image "$KIND_NODE_IMAGE" \
-    --config "$here/kind.yaml" --wait 120s
+    --config bootstrap/kind.yaml --wait 120s
 }
 
 connect_cache() {
@@ -37,11 +39,10 @@ connect_cache() {
 }
 
 write_mirrors() {
-  for node in $(kind get nodes --name "$CLUSTER_NAME"); do
-    for entry in $mirrors; do
-      host=${entry%%=*}
-      upstream=${entry#*=}
-      dir=/etc/containerd/certs.d/$host
+  nodes=$(kind get nodes --name "$CLUSTER_NAME")
+  jq -r '.[] | "\(.host) \(.upstream)"' "$registries" | while read -r host upstream; do
+    dir=/etc/containerd/certs.d/$host
+    for node in $nodes; do
       docker exec -i "$node" sh -c "mkdir -p $dir && cat > $dir/hosts.toml" <<TOML
 server = "$upstream"
 

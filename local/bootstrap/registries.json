@@ -1,0 +1,6 @@
+[
+  { "host": "docker.io", "upstream": "https://registry-1.docker.io" },
+  { "host": "ghcr.io", "upstream": "https://ghcr.io" },
+  { "host": "quay.io", "upstream": "https://quay.io" },
+  { "host": "ecr-public.aws.com", "upstream": "https://ecr-public.aws.com" }
+]
