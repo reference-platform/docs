@@ -80,9 +80,9 @@ check_tools() {
   check_tool git       fail git                      git --version
   check_tool k6        fail k6                       k6 version
   check_tool kind      fail kind                     kind version
-  check_tool kubectl   warn kubectl                  kubectl version --client
-  check_tool helm      warn helm                     helm version --short
-  check_tool jq        warn jq                       jq --version
+  check_tool kubectl   fail kubectl                  kubectl version --client
+  check_tool helm      fail helm                     helm version --short
+  check_tool jq        fail jq                       jq --version
   check_tool yq        warn yq                       yq --version
   check_tool terraform warn hashicorp/tap/terraform  terraform version
   check_tool tofu      warn opentofu                 tofu version
