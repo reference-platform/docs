@@ -4,7 +4,7 @@
 set -euo pipefail
 
 context=kind-$CLUSTER_NAME
-root_app=https://raw.githubusercontent.com/reference-platform/gitops/main/root-app.yaml
+root_app=https://raw.githubusercontent.com/reference-platform/gitops/main/envs/dev/platform/root.yaml
 
 helm upgrade --install argocd argo-cd \
   --repo https://argoproj.github.io/argo-helm \
