@@ -31,8 +31,7 @@ It runs outside the cluster because:
   with it, so there would be no warm start.
 - It needs no Kubernetes networking, storage or GitOps sync.
 
-The registries in `registries.json` are mirrored. Add a registry there when an
-image needs it.
+The registries in `registries.json` are mirrored.
 
 ## Consequences
 
