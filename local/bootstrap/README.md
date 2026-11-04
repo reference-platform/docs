@@ -1,5 +1,40 @@
 # Bootstrap
 
-Scripts to create the local cluster and install the platform on it.
+Scripts that create the local cluster and install the platform on it. `make up`
+runs them in this order. All of them can run again on an existing cluster.
 
-TODO
+Requirements: Docker, kind, kubectl, Helm and jq. `make preflight` checks them.
+
+| File | What it does |
+|---|---|
+| `cluster.sh` | Starts the Zot pull-through cache, creates the kind cluster and points containerd on every node at the cache |
+| `argocd.sh` | Installs ArgoCD with Helm and applies the root application from the gitops repo |
+| `wait.sh` | Waits until every ArgoCD application is Synced and Healthy. Fails after 15 minutes. |
+| `kind.yaml` | Cluster layout: one control plane and two workers |
+| `zot.json` | Base configuration of the cache |
+| `registries.json` | Registries the cache mirrors |
+| `argocd-values.yaml` | Helm values for ArgoCD |
+
+Versions and names are set in `../versions.env`.
+
+## Registry cache
+
+The cache runs as a container next to the cluster, not inside it. It keeps its
+images in a Docker volume, so a deleted cluster does not lose them. `make down`
+stops the cache and keeps the volume. `make clean` removes both. See
+[ADR 1](../../adr/0001-registry-cache.md).
+
+Each node pulls through the cache with a `hosts.toml` file per registry. If the
+cache has an image, it serves it. Otherwise it pulls from the upstream registry
+and keeps a copy.
+
+## ArgoCD
+
+ArgoCD is installed once with Helm. It then reads the gitops repo through the
+root application, which creates the projects, the namespaces and the
+ApplicationSets. Open the UI with `make forward` at `https://localhost:8080`.
+The initial admin password is in the secret `argocd-initial-admin-secret`:
+
+```
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
+```
