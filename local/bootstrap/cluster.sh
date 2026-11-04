@@ -3,7 +3,6 @@
 
 set -euo pipefail
 
-cache=zot-cache
 registries=bootstrap/registries.json
 generated=$PWD/bootstrap/.generated
 
@@ -16,10 +15,10 @@ start_cache() {
       tlsVerify: true,
       content: [{ prefix: "**", destination: ("/" + .host) }]
     }]' bootstrap/zot.json >"$generated/config.json"
-  docker rm -f "$cache" >/dev/null 2>&1 || true
-  docker run -d --name "$cache" --restart unless-stopped \
+  docker rm -f "$CACHE_NAME" >/dev/null 2>&1 || true
+  docker run -d --name "$CACHE_NAME" --restart unless-stopped \
     -p 127.0.0.1:5001:5000 \
-    -v zot-cache-data:/var/lib/zot \
+    -v "$CACHE_VOLUME":/var/lib/zot \
     -v "$generated":/etc/zot:ro \
     "$ZOT_IMAGE" >/dev/null
 }
@@ -35,7 +34,7 @@ create_cluster() {
 
 connect_cache() {
   docker network inspect kind --format '{{range .Containers}}{{.Name}} {{end}}' \
-    | grep -qw "$cache" || docker network connect kind "$cache"
+    | grep -qw "$CACHE_NAME" || docker network connect kind "$CACHE_NAME"
 }
 
 write_mirrors() {
@@ -46,7 +45,7 @@ write_mirrors() {
       docker exec -i "$node" sh -c "mkdir -p $dir && cat > $dir/hosts.toml" <<TOML
 server = "$upstream"
 
-[host."http://$cache:5000/v2/$host"]
+[host."http://$CACHE_NAME:5000/v2/$host"]
   capabilities = ["pull", "resolve"]
   override_path = true
 TOML
