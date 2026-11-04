@@ -1,10 +1,12 @@
 include versions.env
 export
 
-.PHONY: help preflight up demo load test down clean
+KUBECTL = kubectl --context kind-$(CLUSTER_NAME)
+
+.PHONY: help preflight up status forward demo load test down clean
 
 help:
-	@echo "Targets: preflight up down clean"
+	@echo "Targets: preflight up status forward down clean"
 
 preflight:
 	@./preflight.sh
@@ -12,6 +14,22 @@ preflight:
 up:
 	@./bootstrap/cluster.sh
 	@./bootstrap/argocd.sh
+	@./bootstrap/wait.sh
+
+status:
+	@$(KUBECTL) get nodes
+	@echo
+	@$(KUBECTL) -n argocd get applications
+	@echo
+	@$(KUBECTL) -n apps get pods,job
+
+forward:
+	@echo "web:    http://localhost:8081"
+	@echo "argocd: https://localhost:8080"
+	@trap 'kill $$(jobs -p)' EXIT; \
+	$(KUBECTL) -n apps port-forward svc/sample-app-web 8081:8080 & \
+	$(KUBECTL) -n argocd port-forward svc/argocd-server 8080:443 & \
+	wait
 
 demo:
 	@echo "not implemented yet"
