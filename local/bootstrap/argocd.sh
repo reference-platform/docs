@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
-# Installs ArgoCD and the root app.
+# Installs ArgoCD and the root app. The chart version and the values come from
+# the gitops repo, so ArgoCD can update itself from the same files.
 
 set -euo pipefail
 
 context=kind-$CLUSTER_NAME
-root_app=https://raw.githubusercontent.com/reference-platform/gitops/main/envs/dev/platform/root.yaml
+gitops=https://raw.githubusercontent.com/reference-platform/gitops/main/envs/dev/platform
 
-helm upgrade --install argocd argo-cd \
-  --repo https://argoproj.github.io/argo-helm \
-  --version "$ARGOCD_CHART_VERSION" \
+config=$(curl -fsSL "$gitops/argocd/config.yaml")
+
+helm upgrade --install argocd "$(yq .chart.name <<<"$config")" \
+  --repo "$(yq .chart.repo <<<"$config")" \
+  --version "$(yq .chart.version <<<"$config")" \
   --kube-context "$context" \
-  --namespace argocd --create-namespace \
-  --values bootstrap/argocd-values.yaml \
+  --namespace "$(yq .namespace <<<"$config")" --create-namespace \
+  --values "$gitops/argocd/values.yaml" \
   --wait --timeout 5m
 
-kubectl --context "$context" apply -f "$root_app"
+kubectl --context "$context" apply -f "$gitops/root.yaml"

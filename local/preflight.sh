@@ -2,7 +2,7 @@
 
 set -u
 
-MIN_MEM_GB=16
+MIN_MEM_GB=23
 MIN_DISK_GB=60
 PORTS="80 443 3000 8080"
 
@@ -83,7 +83,7 @@ check_tools() {
   check_tool kubectl   fail kubectl                  kubectl version --client
   check_tool helm      fail helm                     helm version --short
   check_tool jq        fail jq                       jq --version
-  check_tool yq        warn yq                       yq --version
+  check_tool yq        fail yq                       yq --version
   check_tool terraform warn hashicorp/tap/terraform  terraform version
   check_tool tofu      warn opentofu                 tofu version
   check_tool tflint    warn tflint                   tflint --version
