@@ -22,13 +22,17 @@ status:
 	@$(KUBECTL) -n argocd get applications
 	@echo
 	@$(KUBECTL) -n apps get pods,job
+	@echo
+	@$(KUBECTL) -n monitoring get pods
 
 forward:
 	@echo "web:    http://localhost:8081"
 	@echo "argocd: https://localhost:8080"
+	@echo "grafana: http://localhost:3000"
 	@trap 'kill $$(jobs -p)' EXIT; \
 	$(KUBECTL) -n apps port-forward svc/sample-app-web 8081:8080 & \
 	$(KUBECTL) -n argocd port-forward svc/argocd-server 8080:443 & \
+	$(KUBECTL) -n monitoring port-forward svc/kube-prometheus-stack-grafana 3000:80 & \
 	wait
 
 demo:
