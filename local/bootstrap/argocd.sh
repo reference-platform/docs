@@ -24,4 +24,4 @@ helm upgrade --install argocd "$(yq '.spec.sources[0].chart' <<<"$app")" \
   "${values[@]}" \
   --wait --timeout 5m
 
-kubectl --context "$context" apply -f "$gitops/clusters/$GITOPS_CLUSTER/root.yaml"
+kubectl --context "$context" apply -f "$gitops/platform/argocd/$GITOPS_CLUSTER/root.yaml"

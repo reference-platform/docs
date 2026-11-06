@@ -54,14 +54,16 @@ acceptable because a check can compare the environments.
 
 Layout: component first. Each platform component and each app service has its
 own folder, flat. Inside it, shared files sit next to one folder per cluster
-(platform) or per environment (apps). Each cluster has a small folder with the
-Argo CD wiring.
+(platform) or per environment (apps). The Argo CD configurations of a cluster are part of
+the Argo CD component.
 
 ```
 platform/<component>/  values.yaml, manifests/, <cluster>/{application.yaml, values.yaml}
 apps/<service>/        values.yaml, <env>/values.yaml, manifests/
-clusters/<cluster>/    root.yaml, projects.yaml, namespaces.yaml, appsets.yaml
 ```
+
+The folder `platform/argocd/<cluster>/` also holds `root.yaml`, `projects.yaml`,
+`namespaces.yaml` and `appsets.yaml`.
 
 Platform folders are named after the cluster, because a component runs once per
 cluster. App folders are named after the environment. They are the same today.
@@ -75,7 +77,7 @@ cluster. App folders are named after the environment. They are the same today.
 Platform (option 1):
 
 - The root Application of a cluster is an app of apps. It has two sources: the
-  wiring files in `clusters/<cluster>/`, and every
+  wiring files in `platform/argocd/<cluster>/`, and every
   `platform/<component>/<cluster>/application.yaml`.
 - Each component is one explicit Application with three sources: the upstream
   chart at a pinned version, the values files from this repo, and an optional
