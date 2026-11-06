@@ -1,20 +1,27 @@
 #!/usr/bin/env bash
-# Installs ArgoCD and the root app. The chart version and the values come from
-# the gitops repo, so ArgoCD can update itself from the same files.
+# Installs ArgoCD and the root app. The chart version and the values files come
+# from the ArgoCD Application in the gitops repo, so ArgoCD can update itself
+# from the same files.
 
 set -euo pipefail
 
 context=kind-$CLUSTER_NAME
-gitops=https://raw.githubusercontent.com/reference-platform/gitops/main/envs/dev/platform
+gitops=https://raw.githubusercontent.com/reference-platform/gitops/main
 
-config=$(curl -fsSL "$gitops/argocd/config.yaml")
+app=$(curl -fsSL "$gitops/platform/argocd/$GITOPS_CLUSTER/application.yaml")
 
-helm upgrade --install argocd "$(yq .chart.name <<<"$config")" \
-  --repo "$(yq .chart.repo <<<"$config")" \
-  --version "$(yq .chart.version <<<"$config")" \
+values=()
+for file in $(yq '.spec.sources[0].helm.valueFiles[]' <<<"$app"); do
+  url=$gitops/${file#'$values/'}
+  if curl -fsI "$url" >/dev/null; then values+=(--values "$url"); fi
+done
+
+helm upgrade --install argocd "$(yq '.spec.sources[0].chart' <<<"$app")" \
+  --repo "$(yq '.spec.sources[0].repoURL' <<<"$app")" \
+  --version "$(yq '.spec.sources[0].targetRevision' <<<"$app")" \
   --kube-context "$context" \
-  --namespace "$(yq .namespace <<<"$config")" --create-namespace \
-  --values "$gitops/argocd/values.yaml" \
+  --namespace "$(yq '.spec.destination.namespace' <<<"$app")" --create-namespace \
+  "${values[@]}" \
   --wait --timeout 5m
 
-kubectl --context "$context" apply -f "$gitops/root.yaml"
+kubectl --context "$context" apply -f "$gitops/platform/argocd/$GITOPS_CLUSTER/root.yaml"

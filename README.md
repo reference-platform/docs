@@ -15,7 +15,7 @@ This repo is the entry point. It holds the docs and the local startup scripts.
 | Repo | What it holds |
 |---|---|
 | [docs](https://github.com/reference-platform/docs) | This repo. The README and the `local/` scripts |
-| [gitops](https://github.com/reference-platform/gitops) | Kubernetes manifests, one folder per environment. ArgoCD reads it |
+| [gitops](https://github.com/reference-platform/gitops) | Kubernetes manifests: platform components, apps and the Argo CD setup. ArgoCD reads it |
 | [sample-app](https://github.com/reference-platform/sample-app) | A small demo app with 3 services. Its CI builds and publishes the images |
 
 ## Architecture
@@ -35,6 +35,9 @@ Versions are exact tags. See [ADR 2](adr/0002-version-policy.md) for the policy.
 | kind | 0.33.0, node image `kindest/node:v1.37.0` |
 | Zot (registry cache) | v2.1.22 |
 | ArgoCD | Helm chart 10.11.6, app v3.5.6 |
+| kube-prometheus-stack | Helm chart 92.20.0 (Prometheus Operator v0.94.2, Prometheus v3.15.1, Alertmanager v0.34.2, Grafana 13.3.0) |
+| Loki | Helm chart 21.0.0 (Loki 3.7.9) |
+| Alloy | Helm chart 1.15.0 (Alloy v1.21.3) |
 | Helm (CI) | v4.3.1 |
 | kubeconform (CI) | v0.8.0 |
 | Python | 3.15.2 |
