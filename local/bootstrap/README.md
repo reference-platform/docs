@@ -29,12 +29,14 @@ and keeps a copy.
 
 ## ArgoCD
 
-ArgoCD is installed once with Helm. The chart version and the values come from
-`envs/dev/platform/argocd/` in the gitops repo. ArgoCD then reads the gitops
-repo through the root application, which creates the projects, the namespaces
-and the ApplicationSets. One of them deploys ArgoCD from the same folder, so
-ArgoCD updates itself from Git. Running `argocd.sh` again re-applies the
-version in Git and is the way to recover if ArgoCD breaks itself. Open the UI with `make forward` at `https://localhost:8080`.
+ArgoCD is installed once with Helm. The chart version and the values files come
+from the ArgoCD Application in the gitops repo (`platform/argocd/`). ArgoCD then
+reads the gitops repo through the root application. It creates the projects, the
+namespaces, the ApplicationSets and one Application per platform component. The
+ArgoCD Application uses the same files, so ArgoCD updates itself from Git.
+Running `argocd.sh` again re-applies the version in Git and is the way to
+recover if ArgoCD breaks itself. Open the UI with `make forward` at
+`https://localhost:8080`.
 The initial admin password is in the secret `argocd-initial-admin-secret`:
 
 ```
